@@ -26,6 +26,11 @@ namespace Parking
 
         public CarType CarType { get; set; }
 
+        public void AddMoney(decimal money)
+        {
+            Balance += money;
+        }
+
         public Car(decimal balance, CarType carType)
         {
             Id = Guid.NewGuid();
