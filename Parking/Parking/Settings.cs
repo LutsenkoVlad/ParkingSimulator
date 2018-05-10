@@ -38,7 +38,15 @@ namespace Parking
         
         private Settings() { }
 
-        public Settings(Dictionary<CarType, decimal> prices, int parkingSpace, double fine, int timeout = 3)
+
+        /// <summary>
+        /// Set settings for parking data
+        /// </summary>
+        /// <param name="prices">Prices for parking for all cars</param>
+        /// <param name="parkingSpace">Amount of parking spaces</param>
+        /// <param name="fine">Coefficient of fine</param>
+        /// <param name="timeout">Every Timeout seconds charges money for parking space</param>
+        public void SetSettings(Dictionary<CarType, decimal> prices, int parkingSpace, double fine, int timeout = 3)
         {
             Prices = prices;
             ParkingSpace = parkingSpace;
