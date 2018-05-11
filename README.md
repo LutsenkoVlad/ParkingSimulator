@@ -1,2 +1,2 @@
 # ParkingSimulator
-This repository simulate parking work 
+This repository about console application that simulate parking work 
