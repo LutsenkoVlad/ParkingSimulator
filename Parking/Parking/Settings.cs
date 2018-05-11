@@ -44,7 +44,7 @@ namespace Parking
         /// <param name="parkingSpace">Amount of parking spaces</param>
         /// <param name="fine">Coefficient of fine</param>
         /// <param name="timeout">Every Timeout seconds charges money for parking space</param>
-        public void SetSettings(Dictionary<CarType, decimal> prices, int parkingSpace, double fine, int timeout = 3)
+        public void SetSettings(Dictionary<CarType, decimal> prices, int parkingSpace, double fine, int timeout = 30)
         {
             Prices = prices;
             ParkingSpace = parkingSpace;

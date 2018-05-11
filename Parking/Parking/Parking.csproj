@@ -42,9 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseLogger.cs" />
     <Compile Include="Car.cs" />
     <Compile Include="Enums\CarType.cs" />
+    <Compile Include="Interfaces\IParking.cs" />
     <Compile Include="Interfaces\ISettings.cs" />
+    <Compile Include="Menu.cs" />
     <Compile Include="Parking.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
