@@ -28,12 +28,12 @@ namespace Parking
         /// <summary>
         /// Coefficient of fine
         /// </summary>
-        public double Fine { get; private set; }
+        public decimal Fine { get; private set; }
 
         private static readonly Lazy<Settings> lazy = new Lazy<Settings>(() => new Settings());
 
         public static Settings Instance => lazy.Value;
-        
+
         private Settings() { }
 
 
@@ -44,7 +44,7 @@ namespace Parking
         /// <param name="parkingSpace">Amount of parking spaces</param>
         /// <param name="fine">Coefficient of fine</param>
         /// <param name="timeout">Every Timeout seconds charges money for parking space</param>
-        public void SetSettings(Dictionary<CarType, decimal> prices, int parkingSpace, double fine, int timeout = 30)
+        public void SetSettings(Dictionary<CarType, decimal> prices, int parkingSpace, decimal fine, int timeout = 3)
         {
             Prices = prices;
             ParkingSpace = parkingSpace;

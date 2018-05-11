@@ -49,6 +49,7 @@
     <Compile Include="Interfaces\ISettings.cs" />
     <Compile Include="Logger\FileLogger.cs" />
     <Compile Include="Menu.cs" />
+    <Compile Include="MenuOption.cs" />
     <Compile Include="Parking.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

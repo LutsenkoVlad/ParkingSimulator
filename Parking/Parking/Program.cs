@@ -1,9 +1,7 @@
 ﻿using Parking.Enums;
-using System;
+using Parking.Interfaces;
+using Parking.Logger;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Parking
 {
@@ -11,57 +9,18 @@ namespace Parking
     {
         static void Main(string[] args)
         {
-            Settings settings = Settings.Instance;
-            var prices = new Dictionary<CarType, decimal>();
-            prices.Add(CarType.Passenger, 1);
-            prices.Add(CarType.Truck, 2);
-            prices.Add(CarType.Bus, 3);
-            prices.Add(CarType.Motorcycle, 4);
-            settings.SetSettings(prices, 10, 5);
-            Parking parking = Parking.Instance;
-            parking.SetSettings(settings);
-            foreach(var car in GetCars())
+            ISettings settings = SetSettings(Settings.Instance);
+            IParking parking = Parking.Instance;
+            parking.SetSettings(settings, new FileLogger("Transactions.log"));
+            foreach (var car in GetCars())
             {
                 parking.AddCar(car);
             }
             Menu menu = new Menu();
             menu.MainMenu(parking);
-
-
-            
-
-            //ConsoleKeyInfo cki;
-            //do
-            //{
-            //    Console.WriteLine("Welcome, to the best parking in the world");
-            //    Console.WriteLine("1.Add car to the parking");
-            //    Console.WriteLine("2.Take car from the parking");
-            //    Console.WriteLine("3.Show all transactions for 1 minute");
-            //    Console.WriteLine("4.Show parking general balance");
-            //    Console.WriteLine("5.Show all free parking spaces");
-            //    Console.WriteLine("6.Show all not free parking spaces");
-            //    Console.WriteLine("7.Show Transactions log");
-            //    Console.WriteLine("8.Show prices for all car");
-            //    Console.WriteLine("9.Show sum of transactions for 1 minute");
-            //    cki = Console.ReadKey();
-            //    switch (cki.Key.ToString())
-            //    {
-            //        case "1": { Console.WriteLine("Enter balance of car and choose type of car"); ;parking.AddCar(new Car(100,CarType.Passenger)); break; }
-
-            //    }
-            //} while (cki.Key != ConsoleKey.Escape);
-
-
-
-            //ConsoleKeyInfo cki;
-            //do
-            //{
-            //    cki = Menu.DisplayMenu();
-            //}
-            //while (cki.Key != ConsoleKey.Escape);
         }
 
-        public static IEnumerable<Car> GetCars()
+        private static IEnumerable<Car> GetCars()
         {
             return new List<Car>
             {
@@ -70,8 +29,19 @@ namespace Parking
                 new Car(100,CarType.Passenger),
                 new Car(100,CarType.Truck),
                 new Car(100,CarType.Motorcycle),
-                new Car(100,CarType.Truck),
+                new Car(0,CarType.Truck),
             };
+        }
+
+        private static ISettings SetSettings(ISettings settings)
+        {
+            var prices = new Dictionary<CarType, decimal>();
+            prices.Add(CarType.Passenger, 5);
+            prices.Add(CarType.Truck, 3);
+            prices.Add(CarType.Bus, 2);
+            prices.Add(CarType.Motorcycle, 1);
+            settings.SetSettings(prices, 10, 5);
+            return settings;
         }
     }
 }

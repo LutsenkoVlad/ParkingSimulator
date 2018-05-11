@@ -19,12 +19,11 @@ namespace Parking
         public ISettings Settings { get; private set; }
         BaseLogger _logger;
 
-        public void SetSettings(ISettings settings)
+        public void SetSettings(ISettings settings, BaseLogger logger)
         {
             Settings = settings;
-            _logger = new FileLogger("Transactions.log");
+            _logger = logger;
         }
-
 
         private static readonly Lazy<Parking> lazy = new Lazy<Parking>(() => new Parking());
 
@@ -32,20 +31,26 @@ namespace Parking
 
         private Parking() { Transactions.CollectionChanged += AddTransaction; }
 
-
         public void AddCar()
         {
             Console.WriteLine("Enter balance and type of car: \nBalance: ");
-            int balance = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine($"Choose type of car: " +
+            try
+            {
+                int balance = Convert.ToInt32(Console.ReadLine());
+                Console.WriteLine($"Choose type of car: " +
                                 "\nPassenger = " + 0 +
                                 "\nTruck = " + 1 +
                                 "\nBus = " + 2 +
                                 "\nMotorcycle = " + 3);
 
-            CarType carType = (CarType)Convert.ToInt32(Console.ReadLine());
+                CarType carType = (CarType)Convert.ToInt32(Console.ReadLine());
 
-            AddCar(new Car(balance, carType));
+                AddCar(new Car(balance, carType));
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine("You entered incorrect data. Try again");
+            }
         }
 
         public void AddCar(Car car)
@@ -56,18 +61,19 @@ namespace Parking
 
         public void RemoveCar()
         {
-            Console.WriteLine("Choose car that you want remove from parking");
+            Console.WriteLine("Choose car that you want take from parking");
             for (int i = 1; i < Cars.Count; i++)
             {
                 Console.WriteLine($"{i} - id: {Cars[i].Id}, balance: {Cars[i].Balance}, type of car: {Cars[i].CarType}");
             }
-            int choosedCar = Convert.ToInt32(Console.ReadLine());
-            RemoveCar(choosedCar);
-        }
-
-        private void RemoveCar(int choosedCar)
-        {
-            Cars.RemoveAt(choosedCar);
+            try
+            {
+                RemoveCar(Convert.ToInt32(Console.ReadLine()));
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine("You entered incorrect data. Try again");
+            }
         }
 
         public void GetFreeParkingSpaces()
@@ -77,7 +83,7 @@ namespace Parking
 
         public void GetNotFreeParkingSpaces()
         {
-            Console.WriteLine($"not free parking spaces - {Cars.Count}");
+            Console.WriteLine($"ocupied parking spaces - {Cars.Count}");
         }
 
         public void GetTransactionsForLastMinute()
@@ -86,17 +92,14 @@ namespace Parking
             var transactionsForOneLastMinute = Transactions.Where(x => x.Date_Time > DateTime.Now - TimeSpan.FromSeconds(60));
             foreach (var tran in transactionsForOneLastMinute)
             {
-                //Console.WriteLine($"car id - {tran.CarId}, sum - {tran.WriteOffs}, time - {tran.Date_Time.Date}:{tran.Date_Time.Hour}:{tran.Date_Time.Minute}:{tran.Date_Time.Second}");
                 Console.WriteLine($"car id - {tran.CarId}, sum - {tran.WriteOffs}, time - {tran.Date_Time}");
             }
         }
 
         public void ShowTransactionSumForOneMinute()
         {
-            Console.WriteLine($"Sum of all transactions for last one minute + {GetTransactionSumForOneMinute()}");
+            Console.WriteLine($"Sum of all transactions for last one minute - {GetTransactionSumForOneMinute()}");
         }
-
-        private decimal GetTransactionSumForOneMinute() => Transactions.Where(x => x.Date_Time > DateTime.Now - TimeSpan.FromSeconds(60)).Sum(x => x.WriteOffs);
 
         public void AddMoneyToCar()
         {
@@ -105,22 +108,33 @@ namespace Parking
             {
                 Console.WriteLine($"{i} - id: {Cars[i].Id}, balance: {Cars[i].Balance}, type of car: {Cars[i].CarType}");
             }
-            int choosedCar = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("Enter sum that you want add: \nSum: ");
-            int sum = Convert.ToInt32(Console.ReadLine());
-            Cars[choosedCar].AddMoney(sum);
+            try
+            {
+                int choosedCar = Convert.ToInt32(Console.ReadLine());
+                Console.WriteLine("Enter sum that you want add: \nSum: ");
+                int sum = Convert.ToInt32(Console.ReadLine());
+                Cars[choosedCar].AddMoney(sum);
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine("You entered incorrect data. Try again");
+            }
         }
 
         public void GetPaymentFromCar()
         {
+            //It has sense when will be a lot of cars in parking
             //Parallel.ForEach(Cars, (car, state, index) =>
             //{
-            //    Balance += Settings.Prices.Where(x => x.Key == car.CarType).Select(x => x.Value).FirstOrDefault();
-            //    car.Balance -= Settings.Prices.Where(x => x.Key == car.CarType).Select(x => x.Value).FirstOrDefault();
+            //    decimal sum = Settings.Prices.Where(x => x.Key == car.CarType).Select(x => x.Value).FirstOrDefault();
+            //    if (car.Balance < sum) sum = sum * Settings.Fine;
+            //    var transaction = new Transaction(car.Id, sum);
+            //    Transactions.Add(transaction);
             //});
             foreach (var car in Cars)
             {
                 decimal sum = Settings.Prices.Where(x => x.Key == car.CarType).Select(x => x.Value).FirstOrDefault();
+                if (car.Balance < sum) sum = sum * Settings.Fine;
                 var transaction = new Transaction(car.Id, sum);
                 Transactions.Add(transaction);
             }
@@ -136,6 +150,33 @@ namespace Parking
             }
         }
 
+        public void LogTransactionEveryMinute()
+        {
+            _logger.Log(GetTransactionSumForOneMinute() + " - " + DateTime.Now);
+        }
+
+        public void ShowLog()
+        {
+            string[] lines = File.ReadAllLines("Transactions.log");
+            foreach (string line in lines)
+            {
+                Console.WriteLine(line);
+            }
+        }
+
+        #region private methods
+        private void RemoveCar(int choosedCar)
+        {
+            if (Cars[choosedCar].Balance >= 0)
+            {
+                Cars.RemoveAt(choosedCar);
+            }
+            else
+            {
+                Console.WriteLine("You have to pay parking." + Environment.NewLine + "Then you can take the car.");
+            }
+        }
+
         private void AddTransaction(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
@@ -147,18 +188,8 @@ namespace Parking
             }
         }
 
-        public void LogTransactionForOneLastMinute()
-        {
-            _logger.Log(GetTransactionSumForOneMinute() + " - " + DateTime.Now);
-        }
-
-        public void ShowLog()
-        {
-            string[] lines = System.IO.File.ReadAllLines("Transactions.log");
-            foreach(string line in lines)
-            {
-                Console.WriteLine(line);
-            }
-        }
+        private decimal GetTransactionSumForOneMinute()
+            => Transactions.Where(x => x.Date_Time > DateTime.Now - TimeSpan.FromSeconds(60)).Sum(x => x.WriteOffs);
+        #endregion
     }
 }

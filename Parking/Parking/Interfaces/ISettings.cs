@@ -24,7 +24,7 @@ namespace Parking.Interfaces
         /// <summary>
         /// Coefficient of fine
         /// </summary>
-        double Fine { get; }
+        decimal Fine { get; }
 
         /// <summary>
         /// Set settings for parking data
@@ -33,6 +33,6 @@ namespace Parking.Interfaces
         /// <param name="parkingSpace">Amount of parking spaces</param>
         /// <param name="fine">Coefficient of fine</param>
         /// <param name="timeout">Every Timeout seconds charges money for parking space</param>
-        void SetSettings(Dictionary<CarType, decimal> prices, int parkingSpace, double fine, int timeout);
+        void SetSettings(Dictionary<CarType, decimal> prices, int parkingSpace, decimal fine, int timeout = 3);
     }
 }

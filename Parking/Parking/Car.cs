@@ -13,7 +13,7 @@ namespace Parking
 
         public void AddMoney(decimal money)
         {
-            if(money > 0)
+            if (money > 0)
                 Balance += money;
         }
 
